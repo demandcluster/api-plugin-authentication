@@ -1,4 +1,6 @@
 import getAccounts from "./accountServer.js";
+import hasTokenExpired from "./hasTokenExpired.js";
+
 /**
  * Given an Authorization Bearer token and the current context, returns the user document
  * for that token after performing token checks.
@@ -16,8 +18,10 @@ import getAccounts from "./accountServer.js";
 async function getUserFromAuthToken(loginToken) {
   const { accountsServer } = await getAccounts();
   const authToken = loginToken.replace(/bearer\s/gi, "");
-  const user = await accountsServer.resumeSession(authToken);
-  return user;
+
+  if (hasTokenExpired(authToken)) return null;
+
+  return accountsServer.resumeSession(authToken);
 }
 
 export default getUserFromAuthToken;
